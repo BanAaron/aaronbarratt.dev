@@ -1,0 +1,25 @@
+@import "../../utils/var";
+
+.thick-boarder {
+  background-color: $white;
+  border: $border-color solid $border-radius;
+  border-bottom: black solid 10px;
+  border-right: black solid 10px;
+  border-radius: 3px 10px 10px 10px;
+}
+
+.header-title {
+  padding: 0 3rem;
+  margin-top: 2rem;
+}
+
+nav {
+  ul li{
+    display: inline;
+  }
+
+  a {
+    font-weight: 900;
+  }
+
+}
