@@ -1,20 +1,15 @@
-@import "utils/var";
+@use "utils/variables" as var;
+@use "utils/mixins" as mix;
 
-@mixin work-sans {
-  font-family: "Work Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-}
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  @include mix.work-sans;
   line-height: 1.5;
-  font-weight: 400;
   font-size: 18px;
 
-  color-scheme: dark;
-  color: $black;
-  background-color: $background;
+  color-scheme: light;
+  color: var.$black;
+  background-color: var.$background;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -50,7 +45,7 @@ input, button, textarea, select {
 
 p, h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word;
-  @include work-sans;
+  @include mix.work-sans;
 }
 
 p {
