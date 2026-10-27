@@ -16,13 +16,40 @@ export default async function handler() {
     }
 
     const imageRegex = /\.(jpe?g|png|webp|avif|gif)$/i
-    const photos = blobs
-      .filter((blob) => imageRegex.test(blob.pathname))
-      .map((blob) => ({
-        url: blob.url,
-        pathname: blob.pathname,
-        uploadedAt: blob.uploadedAt,
-      }))
+    const imageBlobs = blobs.filter((blob) => imageRegex.test(blob.pathname))
+
+    // Group blobs by base pathname (without extension) to pair webp and jpeg versions
+    const groups = new Map<string, typeof blobs>()
+    for (const blob of imageBlobs) {
+      const basePath = blob.pathname.replace(/\.[^/.]+$/, '')
+      const group = groups.get(basePath) || []
+      group.push(blob)
+      groups.set(basePath, group)
+    }
+
+    const photos = Array.from(groups.entries())
+      .map(([basePath, blobGroup]) => {
+        const firstBlob = blobGroup[0]
+        if (!firstBlob) return null
+
+        const webpBlob = blobGroup.find((b) => /\.webp$/i.test(b.pathname))
+        const jpegBlob = blobGroup.find((b) => /\.(jpe?g)$/i.test(b.pathname))
+        const fallbackBlob = blobGroup.find((b) => b !== webpBlob && b !== jpegBlob) || firstBlob
+
+        const thumbBlob = webpBlob || jpegBlob || fallbackBlob
+        const fullBlob = jpegBlob || webpBlob || fallbackBlob
+        const primaryBlob = jpegBlob || webpBlob || fallbackBlob
+
+        return {
+          id: basePath,
+          url: thumbBlob.url,
+          thumbnailUrl: thumbBlob.url,
+          fullUrl: fullBlob.url,
+          pathname: primaryBlob.pathname,
+          uploadedAt: primaryBlob.uploadedAt,
+        }
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
 
     return new Response(JSON.stringify(photos), {
       status: 200,
